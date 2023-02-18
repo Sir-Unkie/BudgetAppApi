@@ -1,30 +1,36 @@
 import { ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
+import { DEFAULT_ROLE_ID } from './constants';
 import { CreateUserDto } from './dto/create-User.dto';
 import { UpdateUserDto } from './dto/update-User.dto';
-import { UsersRepository } from './repositories/users.repository';
+import { UserRepository } from './repositories/users.repository';
 
 @Injectable()
 export class UsersService {
-  constructor(private usersRepository: UsersRepository) { }
+  constructor(
+    private usersRepository: UserRepository,
+  ) { }
 
   async create(createUserDto: CreateUserDto) {
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(createUserDto.password, salt);
-    
+
     const createdUser = this.usersRepository.create({
       ...createUserDto,
       password: hashedPassword,
       salt,
+      role: { id: DEFAULT_ROLE_ID },
     });
 
     try {
-      await createdUser.save();
-      // TODO: consider removing returns of data cause PW are there
-      return createdUser;
+      const savedUser = await this.usersRepository.save(createdUser);
+
+      const { password, salt, ...returnedUser } = savedUser;
+
+      return returnedUser;
     } catch (err) {
       if (err.code === '23505') {
-        throw new ConflictException('User with this username already exists');
+        throw new ConflictException('User with this email already exists');
       } 
 
       throw new InternalServerErrorException();
@@ -32,12 +38,25 @@ export class UsersService {
   }
 
   async findAll() {
-    const allusers = await this.usersRepository.find();
+    const allusers = await this.usersRepository.find(
+      {
+        relations: { role: true },
+        select:
+        {
+          id: true,
+          userEmail: true,
+          role: { roleName: true },
+          transactions: { amount: true },
+        },
+      });
     return allusers;
   }
 
   async findOne(id: number) {
-    const foundUser = await this.usersRepository.findOneBy({ id });
+    const foundUser = await this.usersRepository.findOne({
+      where: { id },
+      relations: { role: true },
+    });
     
     if (!foundUser) {
       throw new NotFoundException(`User with ID=${id} not found`);
@@ -50,6 +69,7 @@ export class UsersService {
     if (res.affected === 0) {
       throw new NotFoundException(`User with ID=${id} not found`);
     }
+    // TODO: add logic with BD
     return { id, ...updateUserDto };
   }
 

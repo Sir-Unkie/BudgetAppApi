@@ -1,4 +1,4 @@
-import { DataSource, MoreThan, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { Transaction } from '../entities/transaction.entity';
 
@@ -8,18 +8,10 @@ export class TransactionRepository extends Repository<Transaction> {
     super(Transaction, dataSource.createEntityManager());
   }
 
-  async getGreaterthan200() {
-    return await this.findBy({
-      amount: MoreThan(200),
-    });
-  }
-
-  async getEqual300() {
-    const query = this.createQueryBuilder('transaction');
-
-    query.andWhere('transaction.amount = :value', { value: 300 });
-    
-    const transactions = await query.getMany();    
-    return transactions;
-  }
+  // here we can add custom queries
+  // async getGreaterthan200() {
+  //   return await this.findBy({
+  //     amount: MoreThan(200),
+  //   });
+  // }
 }

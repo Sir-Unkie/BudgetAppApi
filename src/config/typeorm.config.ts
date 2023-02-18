@@ -1,4 +1,7 @@
 import { TypeOrmModuleOptions } from "@nestjs/typeorm";
+import { Budget } from "src/budgets/entities/budget.entity";
+import { Category } from "src/categories/entities/category.entity";
+import { Role } from "src/roles/entities/role.entity";
 import { Transaction } from "src/transactions/entities/transaction.entity";
 import { User } from "src/users/entities/user.entity";
 
@@ -9,9 +12,9 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   username: 'postgres',
   password: 'oCjf9pzqKW8Ck4Xx',
   database: 'postgres',
-  entities: [Transaction, User],
+  entities: [Transaction, User, Role, Budget, Category],
   //   TODO: remove in production
-  synchronize: true, 
+  synchronize: true,
 };
 
 // https://app.supabase.com/project/kvnvxewlifksjoxufhst/settings/billing/subscription
