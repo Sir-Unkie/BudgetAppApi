@@ -20,70 +20,92 @@ export class BudgetsService {
 		createBudgetDto: CreateBudgetDto,
 		user: User,
 	): Promise<CreateBudgetApiResponse> {
-		const existingBudget = await this.budgetRepository.findOneBy({
-			name: createBudgetDto.name,
-			user: { id: user.id },
-		});
+		try {
+			const existingBudget = await this.budgetRepository.findOneBy({
+				name: createBudgetDto.name,
+				user: { id: user.id },
+			});
 
-		if (existingBudget) {
-			throw new ConflictException('Budget with this name already exists');
+			if (existingBudget) {
+				throw new ConflictException('Budget with this name already exists');
+			}
+
+			const createdBudget = this.budgetRepository.create({
+				...createBudgetDto,
+				user,
+			});
+
+			const { id, name, annualLimit } = await this.budgetRepository.save(
+				createdBudget,
+			);
+
+			return { id, name, annualLimit };
+		} catch (err) {
+			throw err;
 		}
-
-		const createdBudget = this.budgetRepository.create({
-			...createBudgetDto,
-			user,
-		});
-
-		const { id, name, annualLimit } = await this.budgetRepository.save(
-			createdBudget,
-		);
-
-		return { id, name, annualLimit };
 	}
 
 	async findAll(user: User) {
-		const budgets = await this.budgetRepository.find({
-			where: { user: { id: user.id } },
-			relations: { categories: true },
-		});
+		try {
+			const budgets = await this.budgetRepository.find({
+				where: { user: { id: user.id } },
+				relations: { categories: true },
+			});
 
-		return budgets;
+			return budgets;
+		} catch (err) {
+			throw err;
+		}
 	}
 
 	async findOne(id: number, user: User): Promise<Budget> {
-		const foundBudget = await this.budgetRepository.findOneBy({
-			id,
-			user: { id: user.id },
-		});
-		if (!foundBudget) {
-			throw new NotFoundException();
+		try {
+			const foundBudget = await this.budgetRepository.findOneBy({
+				id,
+				user: { id: user.id },
+			});
+
+			if (!foundBudget) {
+				throw new NotFoundException();
+			}
+
+			return foundBudget;
+		} catch (err) {
+			throw err;
 		}
-		return foundBudget;
 	}
 
 	async update(id: number, updateBudgetDto: UpdateBudgetDto, user: User) {
-		const res = await this.budgetRepository.update(
-			{ id, user: { id: user.id } },
-			{ ...updateBudgetDto, user },
-		);
+		try {
+			const res = await this.budgetRepository.update(
+				{ id, user: { id: user.id } },
+				{ ...updateBudgetDto, user },
+			);
 
-		if (res.affected === 0) {
-			throw new NotFoundException(`Budget not found`);
+			if (res.affected === 0) {
+				throw new NotFoundException(`Budget not found`);
+			}
+
+			return { id, ...updateBudgetDto };
+		} catch (err) {
+			throw err;
 		}
-
-		return { id, ...updateBudgetDto };
 	}
 
 	async remove(id: number, user: User) {
-		const res = await this.budgetRepository.delete({
-			id,
-			user: { id: user.id },
-		});
+		try {
+			const res = await this.budgetRepository.delete({
+				id,
+				user: { id: user.id },
+			});
 
-		if (res.affected === 0) {
-			throw new NotFoundException(`Budget not found`);
+			if (res.affected === 0) {
+				throw new NotFoundException(`Budget not found`);
+			}
+
+			return `Budget removed`;
+		} catch (err) {
+			throw err;
 		}
-
-		return `Budget removed`;
 	}
 }

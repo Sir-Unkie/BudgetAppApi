@@ -37,13 +37,20 @@ export class TransactionsController {
 	}
 
 	@Get()
+	// TODO: consider better filtering logic
 	@UsePipes(ValidationPipe)
 	findAll(
 		@GetUser() user: User,
 		@Query() query: FindAllTransactionsQueryParams,
 	): Promise<ITransactionApiResponse[]> {
-		const { startDate, endDate } = query;
-		return this.transactionsService.findAll(user, startDate, endDate);
+		const { startDate, endDate, budgetId, categoryId } = query;
+		return this.transactionsService.findAll(
+			user,
+			startDate,
+			endDate,
+			budgetId,
+			categoryId,
+		);
 	}
 
 	@Get(':id')

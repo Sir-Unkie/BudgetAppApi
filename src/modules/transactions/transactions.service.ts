@@ -1,8 +1,4 @@
-import {
-	BadRequestException,
-	Injectable,
-	NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Between } from 'typeorm';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
@@ -10,45 +6,57 @@ import { TransactionRepository } from './repositories/transactions.repository';
 import * as dayjs from 'dayjs';
 import { User } from 'src/modules/users/entities/user.entity';
 import { ITransactionApiResponse } from 'src/modules/transactions/types';
+import { CategoryRepository } from 'src/modules/categories/repositories/category.repository';
 
 @Injectable()
 export class TransactionsService {
-	constructor(private transactionRepository: TransactionRepository) {}
+	constructor(
+		private transactionRepository: TransactionRepository,
+		private readonly categoryRepository: CategoryRepository,
+	) {}
 
 	async create(
 		createTransactionDto: CreateTransactionDto,
 		user: User,
 	): Promise<ITransactionApiResponse> {
-		const { budgetId, categoryId } = createTransactionDto;
-
-		const createdTransaction = this.transactionRepository.create({
-			...createTransactionDto,
-			user,
-			budget: { id: budgetId },
-			category: { id: categoryId },
-		});
-
 		try {
-			const savedTransaction = await this.transactionRepository.save(
-				createdTransaction,
-			);
+			const { budgetId, categoryId } = createTransactionDto;
+
+			const createdTransaction = this.transactionRepository.create({
+				...createTransactionDto,
+				user,
+				budget: { id: budgetId },
+				category: { id: categoryId },
+			});
+
+			const [savedTransaction, foundCategory] = await Promise.all([
+				this.transactionRepository.save(createdTransaction),
+				this.categoryRepository.findOne({
+					where: { id: categoryId },
+					relations: { budget: true },
+				}),
+			]);
+
 			return {
 				amount: savedTransaction.amount,
-				budget: savedTransaction.budget?.name ?? null,
-				category: savedTransaction.category?.name ?? null,
+				budget: foundCategory?.budget.name ?? null,
+				category: foundCategory?.name ?? null,
 				comment: savedTransaction.comment,
 				date: savedTransaction.date,
 				id: savedTransaction.id,
 			};
 		} catch (error) {
-			throw new BadRequestException(`${error}`);
+			throw error;
 		}
 	}
 
+	// TODO: consider better filtering logic
 	async findAll(
 		user: User,
 		startDate?: string,
 		endDate?: string,
+		budgetId?: string,
+		categoryId?: string,
 	): Promise<ITransactionApiResponse[]> {
 		endDate = endDate ?? dayjs().toISOString();
 		startDate = startDate ?? dayjs().startOf('month').toISOString();
@@ -57,6 +65,9 @@ export class TransactionsService {
 			where: {
 				user: { id: user.id },
 				date: Between(startDate, endDate),
+				// TODO: check this
+				budget: { id: Number(budgetId) ?? undefined },
+				category: { id: Number(categoryId) ?? undefined },
 			},
 			relations: {
 				category: true,
@@ -98,23 +109,32 @@ export class TransactionsService {
 	) {
 		const res = await this.transactionRepository.update(
 			{ id, user: { id: user.id } },
-			{ ...updateTransactionDto },
+			{
+				amount: updateTransactionDto.amount,
+				category: { id: updateTransactionDto.categoryId },
+				budget: { id: updateTransactionDto.budgetId },
+				comment: updateTransactionDto.comment,
+				date: updateTransactionDto.date,
+			},
 		);
 		if (res.affected === 0) {
 			throw new NotFoundException(`Transaction not found`);
 		}
-		// TODO: add logic with DB
 		return { id, ...updateTransactionDto };
 	}
 
 	async remove(id: string, user: User) {
-		const res = await this.transactionRepository.delete({
-			id,
-			user: { id: user.id },
-		});
-		if (res.affected === 0) {
-			throw new NotFoundException(`Transaction not found`);
+		try {
+			const res = await this.transactionRepository.delete({
+				id,
+				user: { id: user.id },
+			});
+			if (res.affected === 0) {
+				throw new NotFoundException(`Transaction not found`);
+			}
+			return `Transaction removed`;
+		} catch (err) {
+			throw err;
 		}
-		return `Transaction removed`;
 	}
 }

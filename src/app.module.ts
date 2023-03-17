@@ -13,6 +13,8 @@ import { cacheModuleConfig } from 'src/config/cacheModule.config';
 import { configModuleConfig } from 'src/config/configModule.config';
 
 // TODO: consider not allowing to login if already logged in?
+// TODO: add email password reset
+// TODO: add filtering functionality for transactions
 // TODO: add logging
 // TODO: add tests
 // TODO: Add swagger

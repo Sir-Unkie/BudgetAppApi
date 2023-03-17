@@ -1,4 +1,4 @@
-import { IsOptional, IsDateString } from 'class-validator';
+import { IsOptional, IsDateString, IsString } from 'class-validator';
 
 export class FindAllTransactionsQueryParams {
 	@IsDateString(undefined, {
@@ -14,6 +14,14 @@ export class FindAllTransactionsQueryParams {
 	})
 	@IsOptional()
 	endDate?: string;
+
+	@IsOptional()
+	@IsString()
+	budgetId?: string;
+
+	@IsOptional()
+	@IsString()
+	categoryId?: string;
 }
 
 export class ITransactionApiResponse {

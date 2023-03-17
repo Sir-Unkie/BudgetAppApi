@@ -1,8 +1,7 @@
 import {
 	Injectable,
-	BadRequestException,
 	NotFoundException,
-	InternalServerErrorException,
+	ConflictException,
 } from '@nestjs/common';
 import { BudgetRepository } from 'src/modules/budgets/repositories/budget.repository';
 import {
@@ -25,15 +24,27 @@ export class CategoriesService {
 		createCategoryDto: CreateCategoryDto,
 		user: User,
 	): Promise<ICategoryApiResponse> {
-		const { budgetId, name } = createCategoryDto;
-
-		const createdCategory = this.categoryRepository.create({
-			budget: { id: budgetId },
-			user,
-			name,
-		});
-
 		try {
+			const { budgetId, name } = createCategoryDto;
+
+			const createdCategory = this.categoryRepository.create({
+				budget: { id: budgetId },
+				user,
+				name,
+			});
+
+			const existingCategory = await this.categoryRepository.findOneBy({
+				name,
+				user: { id: user.id },
+				budget: { id: budgetId },
+			});
+
+			if (existingCategory) {
+				throw new ConflictException(
+					'Category with this name already exists in this budget',
+				);
+			}
+
 			const savedCategory = await this.categoryRepository.save(createdCategory);
 			return {
 				id: savedCategory.id,
@@ -41,7 +52,7 @@ export class CategoriesService {
 				name: savedCategory.name,
 			};
 		} catch (error) {
-			throw new BadRequestException(`${error}`);
+			throw error;
 		}
 	}
 
@@ -49,18 +60,24 @@ export class CategoriesService {
 		user: User,
 		filters?: ICategoriesFilters,
 	): Promise<ICategoryApiResponse[]> {
-		const foundCategories = await this.categoryRepository.find({
-			where: { user: { id: user.id }, budget: { id: filters?.budgetId } },
-			relations: { budget: true },
-		});
+		try {
+			const foundCategories = await this.categoryRepository.find({
+				where: { user: { id: user.id }, budget: { id: filters?.budgetId } },
+				relations: { budget: true },
+			});
 
-		const response: ICategoryApiResponse[] = foundCategories.map(category => ({
-			budget: category.budget.name,
-			id: category.id,
-			name: category.name,
-		}));
+			const response: ICategoryApiResponse[] = foundCategories.map(
+				category => ({
+					budget: category.budget.name,
+					id: category.id,
+					name: category.name,
+				}),
+			);
 
-		return response;
+			return response;
+		} catch (err) {
+			throw err;
+		}
 	}
 
 	async findOne(id: number, user: User): Promise<ICategoryApiResponse> {
@@ -81,7 +98,7 @@ export class CategoriesService {
 			};
 		} catch (err) {
 			console.log('error: ', err);
-			throw new InternalServerErrorException();
+			throw err;
 		}
 	}
 
@@ -90,9 +107,9 @@ export class CategoriesService {
 		user: User,
 		updateCategoryDto: UpdateCategoryDto,
 	): Promise<ICategoryApiResponse> {
-		const { budgetId, name } = updateCategoryDto;
-
 		try {
+			const { budgetId, name } = updateCategoryDto;
+
 			const [foundBudget, res] = await Promise.all([
 				this.budgetRepository.findOneBy({ id: budgetId }),
 				this.categoryRepository.update(
@@ -113,20 +130,24 @@ export class CategoriesService {
 			return { id, budget: foundBudget.name, name };
 		} catch (err) {
 			console.log('err: ', err);
-			throw new InternalServerErrorException();
+			throw err;
 		}
 	}
 
 	async remove(id: number, user: User) {
-		const res = await this.categoryRepository.delete({
-			id,
-			user: { id: user.id },
-		});
+		try {
+			const res = await this.categoryRepository.delete({
+				id,
+				user: { id: user.id },
+			});
 
-		if (res.affected === 0) {
-			throw new NotFoundException(`Budget not found`);
+			if (res.affected === 0) {
+				throw new NotFoundException(`Budget not found`);
+			}
+
+			return `Category is removed`;
+		} catch (err) {
+			throw err;
 		}
-
-		return `Category is removed`;
 	}
 }
