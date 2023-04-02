@@ -11,10 +11,10 @@ async function bootstrap() {
 	const document = SwaggerModule.createDocument(app, swaggerConfig);
 	SwaggerModule.setup('api', app, document);
 
+	app.enableCors({ origin: true });
 	app.use(helmet());
 	app.use(cookieParser());
 	app.setGlobalPrefix('api');
-	app.enableCors({ origin: 'https://github.com' });
 
 	const APP_PORT = process.env.APP_PORT || 4000;
 
