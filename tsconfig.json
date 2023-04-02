@@ -1,25 +1,25 @@
 {
-  "compilerOptions": {
-    "module": "commonjs",
-    "declaration": true,
-    "removeComments": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "allowSyntheticDefaultImports": true,
-    "target": "es2017",
-    "sourceMap": true,
-    "outDir": "./dist",
-    "baseUrl": "./",
-    "incremental": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "strictPropertyInitialization": false,
-    "noImplicitAny": true,
-    "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitOverride": true,
-    "allowUnreachableCode": false,
-    "preserveConstEnums": true,
-    "useUnknownInCatchVariables": false
-  }
+	"compilerOptions": {
+		"module": "commonjs",
+		"declaration": true,
+		"removeComments": true,
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true,
+		"allowSyntheticDefaultImports": true,
+		"target": "es2017",
+		"sourceMap": true,
+		"outDir": "./dist",
+		"baseUrl": "./",
+		"incremental": true,
+		"skipLibCheck": true,
+		"strict": true,
+		"strictPropertyInitialization": false,
+		"noImplicitAny": true,
+		"forceConsistentCasingInFileNames": true,
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitOverride": true,
+		"allowUnreachableCode": false,
+		"preserveConstEnums": true,
+		"useUnknownInCatchVariables": false
+	}
 }

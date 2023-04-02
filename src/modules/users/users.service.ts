@@ -7,8 +7,8 @@ import {
 import * as bcrypt from 'bcrypt';
 import { UserApiResponseDto } from 'src/modules/users/dto/userResponse.dto';
 import { DEFAULT_ROLE_ID } from './constants';
-import { CreateUserDto } from './dto/create-User.dto';
-import { UpdateUserDto } from './dto/update-User.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRepository } from './repositories/users.repository';
 
 @Injectable()
