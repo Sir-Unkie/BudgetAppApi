@@ -12,16 +12,18 @@ import { TokensModule } from './modules/tokens/tokens.module';
 import { cacheModuleConfig } from 'src/config/cacheModule.config';
 import { configModuleConfig } from 'src/config/configModule.config';
 
-// TODO: consider not allowing to login if already logged in?
-// TODO: add email password reset
-// TODO: add filtering functionality for transactions
-// TODO: add logging
-// TODO: add tests
 // TODO: Add swagger
 // TODO: add cors and HELMET headers
+// TODO: add logging
 // TODO: Add compression
-// TODO: consider file uploads
 // TODO: try migrations
+// TODO: add tests
+
+// additional functionality
+// TODO: consider not allowing to login if already logged in?
+// TODO: add email password reset
+// TODO: add filtering functionality for transactions (optional - probably do it on frontened)
+// TODO: consider file uploads
 
 @Module({
 	imports: [

@@ -22,7 +22,10 @@ import { AuthService } from './auth.service';
 import { AuthCredentialsDto } from './dto/registrationCredentials.dto';
 import { GoogleAuthGuard, JwtAuthGuard } from './guards';
 import { TJwtToken } from './types/auth.types';
+import { ROUTES } from 'src/constants/routes.constants';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Auth')
 @Controller()
 export class AuthController {
 	constructor(
@@ -30,7 +33,8 @@ export class AuthController {
 		private readonly tokensService: TokensService,
 	) {}
 
-	@Post('register')
+	@Post(ROUTES.REGISTER)
+	@ApiOperation({ summary: 'Register new user' })
 	@HttpCode(HttpStatus.CREATED)
 	@UsePipes(ValidationPipe)
 	async register(
@@ -46,7 +50,8 @@ export class AuthController {
 		return accessToken;
 	}
 
-	@Post('login')
+	@Post(ROUTES.LOGIN)
+	@ApiOperation({ summary: 'Login' })
 	@HttpCode(HttpStatus.OK)
 	@UsePipes(ValidationPipe)
 	async login(
@@ -62,7 +67,8 @@ export class AuthController {
 		return accessToken;
 	}
 
-	@Post('refresh')
+	@Post(ROUTES.REFRESH)
+	@ApiOperation({ summary: 'Refresh access token' })
 	@HttpCode(HttpStatus.OK)
 	@UsePipes(ValidationPipe)
 	async refresh(
@@ -80,7 +86,8 @@ export class AuthController {
 		return accessToken;
 	}
 
-	@Post('logout')
+	@Post(ROUTES.LOGOUT)
+	@ApiOperation({ summary: 'Logout' })
 	@UseGuards(JwtAuthGuard)
 	@HttpCode(HttpStatus.OK)
 	async logout(
@@ -94,13 +101,15 @@ export class AuthController {
 	}
 
 	// TODO: change it to POST request, when ready
-	@Get('google')
+	@Get(ROUTES.GOOGLE)
+	@ApiOperation({ summary: 'Login with google' })
 	@UseGuards(GoogleAuthGuard)
 	loginGoogle() {
 		return 'google';
 	}
 
-	@Get('oauth2/redirect/google')
+	@Get(ROUTES.GOOGLE_REDIRECT)
+	@ApiOperation({ summary: 'Login redirect route' })
 	@UseGuards(GoogleAuthGuard)
 	async respond(
 		@GetUser() user: User,

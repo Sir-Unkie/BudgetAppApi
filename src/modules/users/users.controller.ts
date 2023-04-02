@@ -21,25 +21,30 @@ import { GetUser } from 'src/customDecorators/user.decorator';
 import { User } from './entities/user.entity';
 import { RolesGuard } from 'src/modules/auth/guards';
 import { ERoles } from 'src/modules/roles/types/roles.enum';
-import { IUserApiResponse } from 'src/modules/users/types/userResponse.type';
+import { UserApiResponseDto } from 'src/modules/users/dto/userResponse.dto';
+import { ROUTES } from 'src/constants/routes.constants';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
+@ApiTags(ROUTES.USERS)
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(ERoles.admin)
-@Controller('users')
+@Controller(ROUTES.USERS)
 export class UsersController {
 	constructor(private readonly usersService: UsersService) {}
 
 	@Get()
-	findAll(): Promise<IUserApiResponse[]> {
+	@ApiOperation({ summary: 'Get all users' })
+	findAll(): Promise<UserApiResponseDto[]> {
 		return this.usersService.findAll();
 	}
 
 	@Get(':id')
+	@ApiOperation({ summary: 'Get user by id' })
 	@Roles(ERoles.user, ERoles.admin)
 	findOne(
 		@Param('id', ParseIntPipe) id: number,
 		@GetUser() user: User,
-	): Promise<IUserApiResponse> {
+	): Promise<UserApiResponseDto> {
 		if (id !== user.id && user.role.roleName === ERoles.user) {
 			throw new ForbiddenException();
 		}
@@ -48,19 +53,21 @@ export class UsersController {
 	}
 
 	@Post()
+	@ApiOperation({ summary: 'Create user' })
 	@UsePipes(ValidationPipe)
-	create(@Body() createUserDto: CreateUserDto): Promise<IUserApiResponse> {
+	create(@Body() createUserDto: CreateUserDto): Promise<UserApiResponseDto> {
 		return this.usersService.create(createUserDto);
 	}
 
 	@Put(':id')
+	@ApiOperation({ summary: 'Update user by id' })
 	@Roles(ERoles.user, ERoles.admin)
 	@UsePipes(ValidationPipe)
 	update(
 		@Param('id', ParseIntPipe) id: number,
 		@Body() updateTransactionDto: UpdateUserDto,
 		@GetUser() user: User,
-	): Promise<IUserApiResponse> {
+	): Promise<UserApiResponseDto> {
 		if (id !== user.id && user.role.roleName !== ERoles.admin) {
 			throw new ForbiddenException();
 		}
@@ -69,6 +76,7 @@ export class UsersController {
 	}
 
 	@Delete(':id')
+	@ApiOperation({ summary: 'Delete user by id' })
 	@Roles(ERoles.user, ERoles.admin)
 	remove(
 		@Param('id', ParseIntPipe) id: number,

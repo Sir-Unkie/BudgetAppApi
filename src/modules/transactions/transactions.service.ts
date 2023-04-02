@@ -5,7 +5,7 @@ import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { TransactionRepository } from './repositories/transactions.repository';
 import * as dayjs from 'dayjs';
 import { User } from 'src/modules/users/entities/user.entity';
-import { ITransactionApiResponse } from 'src/modules/transactions/types';
+import { TransactionResponseApiResponseDto } from 'src/modules/transactions/dto/transaction-response.dto';
 import { CategoryRepository } from 'src/modules/categories/repositories/category.repository';
 
 @Injectable()
@@ -18,7 +18,7 @@ export class TransactionsService {
 	async create(
 		createTransactionDto: CreateTransactionDto,
 		user: User,
-	): Promise<ITransactionApiResponse> {
+	): Promise<TransactionResponseApiResponseDto> {
 		try {
 			const { budgetId, categoryId } = createTransactionDto;
 
@@ -39,8 +39,8 @@ export class TransactionsService {
 
 			return {
 				amount: savedTransaction.amount,
-				budget: foundCategory?.budget.name ?? null,
-				category: foundCategory?.name ?? null,
+				budget: foundCategory?.budget.name,
+				category: foundCategory?.name,
 				comment: savedTransaction.comment,
 				date: savedTransaction.date,
 				id: savedTransaction.id,
@@ -57,7 +57,7 @@ export class TransactionsService {
 		endDate?: string,
 		budgetId?: string,
 		categoryId?: string,
-	): Promise<ITransactionApiResponse[]> {
+	): Promise<TransactionResponseApiResponseDto[]> {
 		endDate = endDate ?? dayjs().toISOString();
 		startDate = startDate ?? dayjs().startOf('month').toISOString();
 
@@ -75,16 +75,17 @@ export class TransactionsService {
 			},
 		});
 
-		const response: ITransactionApiResponse[] = allTransactions.map(
+		const response: TransactionResponseApiResponseDto[] = allTransactions.map(
 			transaction => ({
 				amount: transaction.amount,
-				budget: transaction.budget?.name ?? null,
-				category: transaction.category?.name ?? null,
+				budget: transaction.budget?.name,
+				category: transaction.category?.name,
 				comment: transaction.comment,
 				date: transaction.date,
 				id: transaction.id,
 			}),
 		);
+
 		return response;
 	}
 

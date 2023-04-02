@@ -4,10 +4,8 @@ import {
 	ConflictException,
 } from '@nestjs/common';
 import { BudgetRepository } from 'src/modules/budgets/repositories/budget.repository';
-import {
-	ICategoriesFilters,
-	ICategoryApiResponse,
-} from 'src/modules/categories/types/index.tsx';
+import { CategoryApiResponseDto } from 'src/modules/categories/dto/category-response.dto';
+import { CategoriesQueryParams } from 'src/modules/categories/types/category.query-params';
 import { User } from 'src/modules/users/entities/user.entity';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -23,7 +21,7 @@ export class CategoriesService {
 	async create(
 		createCategoryDto: CreateCategoryDto,
 		user: User,
-	): Promise<ICategoryApiResponse> {
+	): Promise<CategoryApiResponseDto> {
 		try {
 			const { budgetId, name } = createCategoryDto;
 
@@ -58,15 +56,15 @@ export class CategoriesService {
 
 	async findAll(
 		user: User,
-		filters?: ICategoriesFilters,
-	): Promise<ICategoryApiResponse[]> {
+		filters?: CategoriesQueryParams,
+	): Promise<CategoryApiResponseDto[]> {
 		try {
 			const foundCategories = await this.categoryRepository.find({
 				where: { user: { id: user.id }, budget: { id: filters?.budgetId } },
 				relations: { budget: true },
 			});
 
-			const response: ICategoryApiResponse[] = foundCategories.map(
+			const response: CategoryApiResponseDto[] = foundCategories.map(
 				category => ({
 					budget: category.budget.name,
 					id: category.id,
@@ -80,7 +78,7 @@ export class CategoriesService {
 		}
 	}
 
-	async findOne(id: number, user: User): Promise<ICategoryApiResponse> {
+	async findOne(id: number, user: User): Promise<CategoryApiResponseDto> {
 		try {
 			const foundCategory = await this.categoryRepository.findOne({
 				where: { id, user: { id: user.id } },
@@ -106,7 +104,7 @@ export class CategoriesService {
 		id: number,
 		user: User,
 		updateCategoryDto: UpdateCategoryDto,
-	): Promise<ICategoryApiResponse> {
+	): Promise<CategoryApiResponseDto> {
 		try {
 			const { budgetId, name } = updateCategoryDto;
 

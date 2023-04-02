@@ -5,7 +5,7 @@ import {
 	NotFoundException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { IUserApiResponse } from 'src/modules/users/types/userResponse.type';
+import { UserApiResponseDto } from 'src/modules/users/dto/userResponse.dto';
 import { DEFAULT_ROLE_ID } from './constants';
 import { CreateUserDto } from './dto/create-User.dto';
 import { UpdateUserDto } from './dto/update-User.dto';
@@ -15,7 +15,7 @@ import { UserRepository } from './repositories/users.repository';
 export class UsersService {
 	constructor(private usersRepository: UserRepository) {}
 
-	async create(createUserDto: CreateUserDto): Promise<IUserApiResponse> {
+	async create(createUserDto: CreateUserDto): Promise<UserApiResponseDto> {
 		try {
 			const salt = await bcrypt.genSalt();
 			const hashedPassword = await bcrypt.hash(createUserDto.password, salt);
@@ -44,7 +44,7 @@ export class UsersService {
 		}
 	}
 
-	async findAll(): Promise<IUserApiResponse[]> {
+	async findAll(): Promise<UserApiResponseDto[]> {
 		try {
 			const allusers = await this.usersRepository.find({
 				relations: { role: true },
@@ -56,7 +56,7 @@ export class UsersService {
 				},
 			});
 
-			const response: IUserApiResponse[] = allusers.map(user => ({
+			const response: UserApiResponseDto[] = allusers.map(user => ({
 				...user,
 				role: user.role.roleName,
 			}));
@@ -67,7 +67,7 @@ export class UsersService {
 		}
 	}
 
-	async findOne(id: number): Promise<IUserApiResponse> {
+	async findOne(id: number): Promise<UserApiResponseDto> {
 		try {
 			const foundUser = await this.usersRepository.findOne({
 				where: { id },
@@ -78,7 +78,7 @@ export class UsersService {
 				throw new NotFoundException(`User with ID=${id} not found`);
 			}
 
-			const response: IUserApiResponse = {
+			const response: UserApiResponseDto = {
 				id: foundUser.id,
 				role: foundUser.role.roleName,
 				userEmail: foundUser.userEmail,
@@ -94,7 +94,7 @@ export class UsersService {
 	async update(
 		id: number,
 		updateUserDto: UpdateUserDto,
-	): Promise<IUserApiResponse> {
+	): Promise<UserApiResponseDto> {
 		try {
 			const [res, foundUser] = await Promise.all([
 				this.usersRepository.update({ id }, { ...updateUserDto }),
@@ -111,7 +111,7 @@ export class UsersService {
 			return {
 				id,
 				userEmail: updateUserDto.userEmail,
-				displayName: updateUserDto.displayName ?? null,
+				displayName: updateUserDto.displayName,
 				role: foundUser.role.roleName,
 			};
 		} catch (err) {

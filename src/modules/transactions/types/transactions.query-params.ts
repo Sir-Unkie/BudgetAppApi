@@ -1,6 +1,9 @@
 import { IsOptional, IsDateString, IsString } from 'class-validator';
 
 export class FindAllTransactionsQueryParams {
+	/**
+	 * Start date
+	 */
 	@IsDateString(undefined, {
 		message:
 			'The $property value in query param should be in ISO format, but value provided is $value',
@@ -8,6 +11,9 @@ export class FindAllTransactionsQueryParams {
 	@IsOptional()
 	startDate?: string;
 
+	/**
+	 * End date
+	 */
 	@IsDateString(undefined, {
 		message:
 			'The $property value in query param should be in ISO format, but value provided is $value',
@@ -15,20 +21,17 @@ export class FindAllTransactionsQueryParams {
 	@IsOptional()
 	endDate?: string;
 
+	/**
+	 * Budget id to filter
+	 */
 	@IsOptional()
 	@IsString()
 	budgetId?: string;
 
+	/**
+	 * Category id to filter
+	 */
 	@IsOptional()
 	@IsString()
 	categoryId?: string;
-}
-
-export class ITransactionApiResponse {
-	id: string;
-	amount: number;
-	comment: string | null;
-	date: string;
-	budget: string | null;
-	category: string | null;
 }
