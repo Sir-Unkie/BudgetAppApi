@@ -12,7 +12,6 @@ import { TokensModule } from './modules/tokens/tokens.module';
 import { cacheModuleConfig } from 'src/config/cacheModule.config';
 import { configModuleConfig } from 'src/config/configModule.config';
 
-// TODO: Add swagger
 // TODO: add cors and HELMET headers
 // TODO: add logging
 // TODO: Add compression
