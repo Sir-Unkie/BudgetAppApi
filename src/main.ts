@@ -6,7 +6,7 @@ import * as cookieParser from 'cookie-parser';
 import { swaggerConfig } from 'src/config/swagger.config';
 
 async function bootstrap() {
-	const app = await NestFactory.create(AppModule, { cors: false });
+	const app = await NestFactory.create(AppModule);
 
 	const document = SwaggerModule.createDocument(app, swaggerConfig);
 	SwaggerModule.setup('api', app, document);
@@ -14,6 +14,19 @@ async function bootstrap() {
 	app.use(helmet());
 	app.use(cookieParser());
 	app.setGlobalPrefix('api');
+
+	app.enableCors({
+		origin: [
+			'http://example.com',
+			'http://www.example.com',
+			'http://app.example.com',
+			'https://example.com',
+			'https://www.example.com',
+			'https://app.example.com',
+		],
+		methods: ['GET', 'POST', 'DELETE', 'PUT', 'PATCH'],
+		credentials: true,
+	});
 
 	const APP_PORT = process.env.APP_PORT || 4000;
 
