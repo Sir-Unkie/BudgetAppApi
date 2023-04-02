@@ -13,6 +13,7 @@ import { cacheModuleConfig } from 'src/config/cacheModule.config';
 import { configModuleConfig } from 'src/config/configModule.config';
 
 // TODO: add cors and HELMET headers
+// TODO: add csrf
 // TODO: add logging
 // TODO: Add compression
 // TODO: try migrations
