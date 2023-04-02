@@ -24,6 +24,8 @@ async function bootstrap() {
 			'https://www.example.com',
 			'https://app.example.com',
 		],
+		allowedHeaders:
+			'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe',
 		methods: ['GET', 'POST', 'DELETE', 'PUT', 'PATCH'],
 		credentials: true,
 	});
