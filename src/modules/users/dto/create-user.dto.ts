@@ -1,5 +1,5 @@
 import { IsString, MaxLength, MinLength } from 'class-validator';
-import { UpdateUserDto } from 'src/modules/users/dto/update-User.dto.ts';
+import { UpdateUserDto } from 'src/modules/users/dto/update-User.dto';
 
 export class CreateUserDto extends UpdateUserDto {
 	@IsString()
