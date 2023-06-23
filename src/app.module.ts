@@ -12,12 +12,9 @@ import { TokensModule } from './modules/tokens/tokens.module';
 import { cacheModuleConfig } from 'src/config/cacheModule.config';
 import { configModuleConfig } from 'src/config/configModule.config';
 
-// TODO: add cors and HELMET headers
-// TODO: add csrf
-// TODO: add logging
-// TODO: Add compression
-// TODO: try migrations
 // TODO: add tests
+// TODO: try migrations
+// TODO: add csrf
 
 // additional functionality
 // TODO: consider not allowing to login if already logged in?

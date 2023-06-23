@@ -2,6 +2,7 @@ import {
 	ConflictException,
 	Injectable,
 	InternalServerErrorException,
+	Logger,
 	NotFoundException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
@@ -13,6 +14,8 @@ import { UserRepository } from './repositories/users.repository';
 
 @Injectable()
 export class UsersService {
+	private readonly log = new Logger(UsersService.name);
+
 	constructor(private usersRepository: UserRepository) {}
 
 	async create(createUserDto: CreateUserDto): Promise<UserApiResponseDto> {
@@ -36,6 +39,8 @@ export class UsersService {
 				userEmail: savedUser.userEmail,
 			};
 		} catch (err) {
+			this.log.warn(err);
+
 			if (err.code === '23505') {
 				throw new ConflictException('User with this email already exists');
 			}
@@ -63,6 +68,7 @@ export class UsersService {
 
 			return response;
 		} catch (err) {
+			this.log.warn(err);
 			throw err;
 		}
 	}
@@ -87,6 +93,7 @@ export class UsersService {
 
 			return response;
 		} catch (err) {
+			this.log.warn(err);
 			throw err;
 		}
 	}
@@ -115,6 +122,7 @@ export class UsersService {
 				role: foundUser.role.roleName,
 			};
 		} catch (err) {
+			this.log.warn(err);
 			throw err;
 		}
 	}
@@ -129,6 +137,7 @@ export class UsersService {
 
 			return `User removed`;
 		} catch (err) {
+			this.log.warn(err);
 			throw err;
 		}
 	}
